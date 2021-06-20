@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
-
+<!-- 2021 Sergio S. | www.sergiosoriano.com -->
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -16,16 +16,22 @@
 
         </canvas>
     </div>
-
+    <div>
+        <input id="clearButton" type="button" value="Clear">
+        <input id="rndButton" type="button" value="Random">
+    </div>
 </body>
 
 <script>
     let size = 6;
 
     let cols = 100;
-    let rows = 70;
+    let rows = 100;
 
     let grid = new Grid(cols, rows);
+
+    document.getElementById("clearButton").addEventListener("click", clear);
+    document.getElementById("rndButton").addEventListener("click", rnd);
 
     let container = document.getElementById('container');
 
@@ -51,7 +57,7 @@
         let addList = [];
         let delList = [];
 
-        let i1, i2, j1, j2, c, n;
+        let tmp1, tmp2, i1, i2, j1, j2, c, n;
         for (i1 = 0; i1 < cols; ++i1) {
             for (j1 = 0; j1 < rows; ++j1) {
 
@@ -61,7 +67,13 @@
                     for (i2 = i1 - 1; i2 <= i1 + 1; ++i2) {
                         for (j2 = j1 - 1; j2 <= j1 + 1; ++j2) {
                             if (i2 != i1 || j2 != j1) { // if not herself
-                                c = grid.get(i2, j2);
+                                tmp1 = i2;
+                                tmp2 = j2;
+                                if (tmp1 < 0) tmp1 = cols - 1;
+                                else if (tmp1 >= cols) tmp1 = 0;
+                                if (tmp2 < 0) tmp2 = rows - 1;
+                                else if (tmp2 >= rows) tmp2 = 0;
+                                c = grid.get(tmp1, tmp2);
                                 if (c) n++;
                                 if (n > 3) {
                                     break outer;
@@ -70,8 +82,8 @@
                         }
                     }
 
-                let index = i1 * rows + j1;
-                c = grid.getIndex(index);
+                let index = i1 * rows + j1; // current index
+                c = grid.getIndex(index); // current state
                 if (c) { // if is alive
                     // draw current state
                     ctx.fillRect(i1 * size, j1 * size, size, size);
@@ -99,7 +111,6 @@
 
     }
 
-
     let lastTime = 0;
     let accum = 0;
 
@@ -116,13 +127,23 @@
         window.requestAnimationFrame(loop);
     }
 
-    for (let i = 0; i < cols * rows; ++i) {
-        if (Math.random() > 0.5)
-            grid.setIndex(i, true);
+    rnd();
 
+    window.requestAnimationFrame(loop);
+
+    function rnd() {
+        for (let i = 0; i < cols * rows; ++i) {
+            grid.setIndex(i, Math.random() > 0.5);
+        }
     }
 
-    window.requestAnimationFrame(loop)
+    function clear() {
+        for (let i = 0; i < cols; ++i) {
+            for (let j = 0; j < rows; ++j) {
+                grid.setIndex(i * rows + j, false);
+            }
+        }
+    }
 </script>
 
 </html>
