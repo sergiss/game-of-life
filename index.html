@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Game Of Life</title>
+    <script src="./resources/js/grid.js"></script>
+</head>
+
+<body>
+
+    <div id='container'>
+        <canvas id='canvas'>
+
+        </canvas>
+    </div>
+
+</body>
+
+<script>
+    let size = 6;
+
+    let cols = 100;
+    let rows = 70;
+
+    let grid = new Grid(cols, rows);
+
+    let container = document.getElementById('container');
+
+    let canvas = document.getElementById('canvas');
+    canvas.style.width = "100%";
+    canvas.style.height = "100%";
+    canvas.width = (cols * size);
+    canvas.height = (rows * size);
+
+    container.style.width = canvas.width + 'px';
+    container.style.height = canvas.height + 'px';
+
+    let ctx = canvas.getContext('2d');
+
+    function update() {
+
+        // clear screen
+        ctx.fillStyle = "#000";
+        ctx.fillRect(0, 0, cols * size, rows * size);
+
+        ctx.fillStyle = "#FFF";
+
+        let addList = [];
+        let delList = [];
+
+        let i1, i2, j1, j2, c, n;
+        for (i1 = 0; i1 < cols; ++i1) {
+            for (j1 = 0; j1 < rows; ++j1) {
+
+                n = 0;
+                // evaluate neighbors
+                outer:
+                    for (i2 = i1 - 1; i2 <= i1 + 1; ++i2) {
+                        for (j2 = j1 - 1; j2 <= j1 + 1; ++j2) {
+                            if (i2 != i1 || j2 != j1) { // if not herself
+                                c = grid.get(i2, j2);
+                                if (c) n++;
+                                if (n > 3) {
+                                    break outer;
+                                }
+                            }
+                        }
+                    }
+
+                let index = i1 * rows + j1;
+                c = grid.getIndex(index);
+                if (c) { // if is alive
+                    // draw current state
+                    ctx.fillRect(i1 * size, j1 * size, size, size);
+                    // update state
+                    if (n != 2 && n != 3) {
+                        delList.push(index); // must die
+                    }
+                } else {
+                    // update state
+                    if (n == 3) {
+                        addList.push(index); // must born
+                    }
+                }
+
+            }
+        }
+
+        for (let i = 0; i < addList.length; ++i) {
+            grid.setIndex(addList[i], true);
+        }
+
+        for (let i = 0; i < delList.length; ++i) {
+            grid.setIndex(delList[i], false);
+        }
+
+    }
+
+
+    let lastTime = 0;
+    let accum = 0;
+
+    function loop(timestamp) {
+        let diff = timestamp - lastTime;
+
+        accum += diff;
+        if (accum > 33) {
+            accum = 0;
+            update();
+        }
+
+        lastTime = timestamp;
+        window.requestAnimationFrame(loop);
+    }
+
+    for (let i = 0; i < cols * rows; ++i) {
+        if (Math.random() > 0.5)
+            grid.setIndex(i, true);
+
+    }
+
+    window.requestAnimationFrame(loop)
+</script>
+
+</html>
