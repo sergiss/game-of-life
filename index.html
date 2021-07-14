@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <!-- 2021 Sergio S. | www.sergiosoriano.com -->
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -116,7 +117,6 @@
 
     function loop(timestamp) {
         let diff = timestamp - lastTime;
-
         accum += diff;
         if (accum > 33) {
             accum = 0;
